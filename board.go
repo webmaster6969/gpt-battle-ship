@@ -34,11 +34,6 @@ func NewBoard(size int, shipCounts []int) *Board {
 	for _, count := range shipCounts {
 		ship := b.placeShip(count)
 		b.Ships = append(b.Ships, ship)
-		//for j := 0; j < count; j++ {
-		//	size := i + 1
-		//	ship := b.placeShip(size)
-		//	b.Ships = append(b.Ships, ship)
-		//}
 	}
 
 	return b
@@ -145,10 +140,6 @@ func (b *Board) isPointCell(_x, _y int) bool {
 	check[centerX][downY] = 1
 	check[rightX][downY] = 1
 
-	//for _, value := range check {
-	//
-	//}
-
 	for y := 0; y < b.Size; y++ {
 		for x := 0; x < b.Size; x++ {
 			//fmt.Printf("%s ", b.Grid[x][y])
@@ -157,9 +148,6 @@ func (b *Board) isPointCell(_x, _y int) bool {
 			}
 		}
 	}
-	//if b.Grid[x+1][y] != "." || b.Grid[x+1+1][y] != "." || b.Grid[x+1][y+1] != "." || b.Grid[x+1][y-1] != "." {
-	//	return false
-	//}
 
 	return true
 }
