@@ -6,10 +6,15 @@ import (
 	"time"
 )
 
+const BOARD_CELL_TYPE_EMPTY = 0
+const BOARD_CELL_TYPE_MISS = 1
+const BOARD_CELL_TYPE_HIT = 2
+const BOARD_CELL_TYPE_DEATH = 3
+
 type Board struct {
 	Size  int
 	Ships []*Ship
-	Grid  [][]string
+	Grid  [][]int
 }
 
 // NewBoard Создаем доску
@@ -19,14 +24,14 @@ func NewBoard(size int, shipCounts []int) *Board {
 	// Создаем доску
 	b := &Board{
 		Size: size,
-		Grid: make([][]string, size),
+		Grid: make([][]int, size),
 	}
 
 	// Ставим каждой клетки изначальное значение
-	for i := 0; i < size; i++ {
-		b.Grid[i] = make([]string, size)
-		for j := 0; j < size; j++ {
-			b.Grid[i][j] = "."
+	for y := 0; y < size; y++ {
+		for x := 0; x < size; x++ {
+			b.Grid[x] = make([]int, size)
+			b.Grid[x][y] = BOARD_CELL_TYPE_EMPTY
 		}
 	}
 
@@ -57,11 +62,11 @@ func (b *Board) placeShip(size int) *Ship {
 		if b.canPlaceShip(ship, x, y, vertical) {
 			for i := 0; i < size; i++ {
 				if vertical {
-					ship.Location = append(ship.Location, [2]int{x + i, y})
-					b.Grid[x+i][y] = "*"
+					ship.Location = append(ship.Location, Location{x + i, y})
+					//b.Grid[x+i][y] = "*"
 				} else {
-					b.Grid[x][y+i] = "*"
-					ship.Location = append(ship.Location, [2]int{x, y + i})
+					//b.Grid[x][y+i] = "*"
+					ship.Location = append(ship.Location, Location{x, y + i})
 				}
 			}
 			return ship
@@ -79,6 +84,7 @@ func (b *Board) canPlaceShip(ship *Ship, x, y int, vertical bool) bool {
 		return false
 	}
 
+	// Проверяем каждую тотчку на соответсвие
 	for i := 0; i < ship.Size; i++ {
 		if vertical {
 			if !b.isPointCell(x+i, y) {
@@ -94,16 +100,19 @@ func (b *Board) canPlaceShip(ship *Ship, x, y int, vertical bool) bool {
 	return true
 }
 
+// Сканируем доску для расмещения коробля
 func (b *Board) isPointCell(_x, _y int) bool {
 	if _x >= b.Size || _y >= b.Size || _x < 0 || _y < 0 {
 		return false
 	}
 
+	// Создаем объект для проверки
 	check := make([][]int, b.Size)
 	for i := range check {
 		check[i] = make([]int, b.Size)
 	}
 
+	// Создаем поле для проверки
 	leftX := _x - 1
 	centerX := _x
 	rightX := _x + 1
@@ -140,10 +149,10 @@ func (b *Board) isPointCell(_x, _y int) bool {
 	check[centerX][downY] = 1
 	check[rightX][downY] = 1
 
+	// Проверяем поле
 	for y := 0; y < b.Size; y++ {
 		for x := 0; x < b.Size; x++ {
-			//fmt.Printf("%s ", b.Grid[x][y])
-			if check[x][y] == 1 && b.Grid[x][y] != "." {
+			if check[x][y] == 1 && b.FindShip(x, y) != nil {
 				return false
 			}
 		}
@@ -152,39 +161,53 @@ func (b *Board) isPointCell(_x, _y int) bool {
 	return true
 }
 
-func (b *Board) Shoot(x, y int) bool {
-	if b.Grid[x][y] == "X" || b.Grid[x][y] == "O" {
-		return false
-	}
-
+// FindShip Поиск части корабля
+func (b *Board) FindShip(x, y int) *Ship {
 	for _, ship := range b.Ships {
+
+		// Перебираем позиции
 		for _, loc := range ship.Location {
-			if loc[0] == x && loc[1] == y {
-				ship.Hits = append(ship.Hits, loc)
-				b.Grid[x][y] = "X"
-				if len(ship.Hits) == ship.Size {
-					b.sinkShip(ship)
-				}
-				return true
+
+			if loc.X == x && loc.Y == y {
+				return ship
 			}
 		}
 	}
+	return nil
+}
 
-	b.Grid[x][y] = "O"
+// Shoot Выстрел по доске
+func (b *Board) Shoot(x, y int) bool {
+	if b.Grid[x][y] == BOARD_CELL_TYPE_HIT || b.Grid[x][y] == BOARD_CELL_TYPE_MISS {
+		return false
+	}
+
+	ship := b.FindShip(x, y)
+
+	if ship != nil {
+		ship.Hits++
+		b.Grid[x][y] = BOARD_CELL_TYPE_HIT
+		if ship.Hits == ship.Size {
+			b.sinkShip(ship)
+		}
+		return true
+	}
+
+	b.Grid[x][y] = BOARD_CELL_TYPE_MISS
 	return false
 }
 
 // Стив что корабль убит
 func (b *Board) sinkShip(ship *Ship) {
 	for _, loc := range ship.Location {
-		b.Grid[loc[0]][loc[1]] = "#"
+		b.Grid[loc.X][loc.Y] = BOARD_CELL_TYPE_DEATH
 	}
 }
 
 // HasShipsLeft Првоеряем есть ли еще живые корабли на поле
 func (b *Board) HasShipsLeft() bool {
 	for _, ship := range b.Ships {
-		if len(ship.Hits) < ship.Size {
+		if ship.Hits < ship.Size {
 			return true
 		}
 	}
@@ -202,7 +225,25 @@ func (b *Board) Print() {
 	for y := 0; y < b.Size; y++ {
 		fmt.Printf("%d ", y+1)
 		for x := 0; x < b.Size; x++ {
-			fmt.Printf("%s ", b.Grid[x][y])
+			switch b.Grid[x][y] {
+			case BOARD_CELL_TYPE_EMPTY:
+				if b.FindShip(x, y) != nil {
+					fmt.Printf("* ")
+				} else {
+					fmt.Printf(". ")
+				}
+				break
+			case BOARD_CELL_TYPE_MISS:
+				fmt.Printf("O ")
+				break
+			case BOARD_CELL_TYPE_HIT:
+				fmt.Printf("X ")
+				break
+			case BOARD_CELL_TYPE_DEATH:
+				fmt.Printf("# ")
+				break
+			}
+
 		}
 		fmt.Println()
 	}

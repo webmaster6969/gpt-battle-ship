@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 )
 
 func Play(player1Name, player2Name string, boardSize int, shipCounts []int) {
@@ -52,4 +54,20 @@ func Play(player1Name, player2Name string, boardSize int, shipCounts []int) {
 	} else {
 		fmt.Printf("\n%s wins! Congratulations!\n", player1.Name)
 	}
+}
+
+func parseCoordinate(text string) (int, int) {
+	text = strings.TrimSpace(text)
+	if len(text) < 2 {
+		return -1, -1
+	}
+
+	x := int(text[0] - 'A')
+	y, err := strconv.Atoi(text[1:])
+	if err != nil {
+		return -1, -1
+	}
+	y--
+
+	return x, y
 }

@@ -1,5 +1,10 @@
 package main
 
+type Location struct {
+	X int
+	Y int
+}
+
 type Player struct {
 	// Имя игрока
 	Name string
@@ -10,12 +15,10 @@ type Player struct {
 }
 
 type Ship struct {
-	// Имя
-	Name string
-	// Длина кооробля
+	// Длина корабля
 	Size int
 	// Расположение
-	Location [][2]int
-	// Жизни кооробля
-	Hits [][2]int
+	Location []Location
+	// Жизни корабля
+	Hits int
 }

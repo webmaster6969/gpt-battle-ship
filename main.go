@@ -1,10 +1,5 @@
 package main
 
-import (
-	"strconv"
-	"strings"
-)
-
 func main() {
 	Play("c1", "c2", 10, []int{4, 3, 3, 2, 2, 2, 1, 1, 1, 1})
 }
@@ -32,19 +27,3 @@ func main() {
 
 	fmt.Println("Game over!")
 }*/
-
-func parseCoordinate(text string) (int, int) {
-	text = strings.TrimSpace(text)
-	if len(text) < 2 {
-		return -1, -1
-	}
-
-	x := int(text[0] - 'A')
-	y, err := strconv.Atoi(text[1:])
-	if err != nil {
-		return -1, -1
-	}
-	y--
-
-	return x, y
-}
