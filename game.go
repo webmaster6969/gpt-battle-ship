@@ -32,11 +32,12 @@ func Play(player1Name, player2Name string, boardSize int, shipCounts []int) {
 		} else {
 			fmt.Println("Miss!")
 			currentPlayer.Misses++
+			// Переключение хода к другому игроку
 			currentPlayer, otherPlayer = otherPlayer, currentPlayer
 		}
 
 		// Переключение хода к другому игроку
-		currentPlayer, otherPlayer = otherPlayer, currentPlayer
+		//currentPlayer, otherPlayer = otherPlayer, currentPlayer
 	}
 
 	// Конец игры

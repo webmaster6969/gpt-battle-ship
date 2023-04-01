@@ -49,15 +49,21 @@ func (b *Board) placeShip(size int) *Ship {
 			Size: size,
 		}
 
+		// Выбираем случайное положение
 		x := rand.Intn(b.Size)
 		y := rand.Intn(b.Size)
+
+		// Так же выбираем случайное расположение по вертикале или горизонтале
 		vertical := rand.Intn(2) == 0
 
+		// Проверям что точно можем рассположить корабль
 		if b.canPlaceShip(ship, x, y, vertical) {
 			for i := 0; i < size; i++ {
 				if vertical {
 					ship.Location = append(ship.Location, [2]int{x + i, y})
+					b.Grid[x+i][y] = "*"
 				} else {
+					b.Grid[x][y+i] = "*"
 					ship.Location = append(ship.Location, [2]int{x, y + i})
 				}
 			}
@@ -66,6 +72,7 @@ func (b *Board) placeShip(size int) *Ship {
 	}
 }
 
+// Проверяем, свободна ли точка
 func (b *Board) canPlaceShip(ship *Ship, x, y int, vertical bool) bool {
 	for i := 0; i < ship.Size; i++ {
 		if x+i >= b.Size || y+i >= b.Size {
@@ -108,12 +115,14 @@ func (b *Board) Shoot(x, y int) bool {
 	return false
 }
 
+// Стив что корабль убит
 func (b *Board) sinkShip(ship *Ship) {
 	for _, loc := range ship.Location {
 		b.Grid[loc[0]][loc[1]] = "#"
 	}
 }
 
+// HasShipsLeft Првоеряем есть ли еще живые корабли на поле
 func (b *Board) HasShipsLeft() bool {
 	for _, ship := range b.Ships {
 		if len(ship.Hits) < ship.Size {
@@ -123,6 +132,7 @@ func (b *Board) HasShipsLeft() bool {
 	return false
 }
 
+// Print Рисуем доску
 func (b *Board) Print() {
 	fmt.Print("  ")
 	for i := 0; i < b.Size; i++ {
@@ -131,9 +141,9 @@ func (b *Board) Print() {
 	fmt.Println()
 
 	for i := 0; i < b.Size; i++ {
-		fmt.Printf("%d ", i)
+		fmt.Printf("%d ", i+1)
 		for j := 0; j < b.Size; j++ {
-			fmt.Printf("%s ", b.Grid[i][j])
+			fmt.Printf("%s ", b.Grid[j][i])
 		}
 		fmt.Println()
 	}

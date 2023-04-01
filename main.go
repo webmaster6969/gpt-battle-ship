@@ -1,18 +1,15 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"os"
 	"strconv"
 	"strings"
 )
 
-/*func main() {
-	Play("c1", "c2", 10, []int{2})
-}*/
-
 func main() {
+	Play("c1", "c2", 10, []int{2})
+}
+
+/*func main() {
 	b := NewBoard(10, []int{1, 2, 3, 4})
 
 	reader := bufio.NewReader(os.Stdin)
@@ -34,7 +31,7 @@ func main() {
 	}
 
 	fmt.Println("Game over!")
-}
+}*/
 
 func parseCoordinate(text string) (int, int) {
 	text = strings.TrimSpace(text)

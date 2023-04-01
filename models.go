@@ -1,15 +1,21 @@
 package main
 
 type Player struct {
-	Name   string
+	// Имя игрока
+	Name string
+	// Доска игрока
 	Board  *Board
 	Hits   int
 	Misses int
 }
 
 type Ship struct {
-	Name     string
-	Size     int
+	// Имя
+	Name string
+	// Длина кооробля
+	Size int
+	// Расположение
 	Location [][2]int
-	Hits     [][2]int
+	// Жизни кооробля
+	Hits [][2]int
 }
