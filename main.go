@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	Play("c1", "c2", 10, []int{2})
+	Play("c1", "c2", 10, []int{4, 3, 3, 2, 2, 2, 1, 1, 1, 1})
 }
 
 /*func main() {

@@ -31,12 +31,14 @@ func NewBoard(size int, shipCounts []int) *Board {
 	}
 
 	// Ставим корабли на поле боя
-	for i, count := range shipCounts {
-		for j := 0; j < count; j++ {
-			size := i + 1
-			ship := b.placeShip(size)
-			b.Ships = append(b.Ships, ship)
-		}
+	for _, count := range shipCounts {
+		ship := b.placeShip(count)
+		b.Ships = append(b.Ships, ship)
+		//for j := 0; j < count; j++ {
+		//	size := i + 1
+		//	ship := b.placeShip(size)
+		//	b.Ships = append(b.Ships, ship)
+		//}
 	}
 
 	return b
@@ -68,27 +70,96 @@ func (b *Board) placeShip(size int) *Ship {
 				}
 			}
 			return ship
+		} else {
+			return b.placeShip(size)
 		}
 	}
 }
 
 // Проверяем, свободна ли точка
 func (b *Board) canPlaceShip(ship *Ship, x, y int, vertical bool) bool {
-	for i := 0; i < ship.Size; i++ {
-		if x+i >= b.Size || y+i >= b.Size {
-			return false
-		}
 
+	// Проверка на выход за пределы поля
+	if x+ship.Size >= b.Size || y+ship.Size >= b.Size {
+		return false
+	}
+
+	for i := 0; i < ship.Size; i++ {
 		if vertical {
-			if b.Grid[x+i][y] != "." {
+			if !b.isPointCell(x+i, y) {
 				return false
 			}
 		} else {
-			if b.Grid[x][y+i] != "." {
+			if !b.isPointCell(x, y+i) {
 				return false
 			}
 		}
 	}
+
+	return true
+}
+
+func (b *Board) isPointCell(_x, _y int) bool {
+	if _x >= b.Size || _y >= b.Size || _x < 0 || _y < 0 {
+		return false
+	}
+
+	check := make([][]int, b.Size)
+	for i := range check {
+		check[i] = make([]int, b.Size)
+	}
+
+	leftX := _x - 1
+	centerX := _x
+	rightX := _x + 1
+
+	topY := _y - 1
+	centerY := _y
+	downY := _y + 1
+
+	if leftX < 0 {
+		leftX = 0
+	}
+	if topY < 0 {
+		topY = 0
+	}
+
+	if rightX > b.Size {
+		rightX = b.Size
+	}
+
+	if downY > b.Size {
+		downY = b.Size
+	}
+
+	// Верх
+	check[leftX][topY] = 1
+	check[centerX][topY] = 1
+	check[rightX][topY] = 1
+	// Середина
+	check[leftX][centerY] = 1
+	check[centerX][centerY] = 1
+	check[rightX][centerY] = 1
+	// Низ
+	check[leftX][downY] = 1
+	check[centerX][downY] = 1
+	check[rightX][downY] = 1
+
+	//for _, value := range check {
+	//
+	//}
+
+	for y := 0; y < b.Size; y++ {
+		for x := 0; x < b.Size; x++ {
+			//fmt.Printf("%s ", b.Grid[x][y])
+			if check[x][y] == 1 && b.Grid[x][y] != "." {
+				return false
+			}
+		}
+	}
+	//if b.Grid[x+1][y] != "." || b.Grid[x+1+1][y] != "." || b.Grid[x+1][y+1] != "." || b.Grid[x+1][y-1] != "." {
+	//	return false
+	//}
 
 	return true
 }
@@ -140,10 +211,10 @@ func (b *Board) Print() {
 	}
 	fmt.Println()
 
-	for i := 0; i < b.Size; i++ {
-		fmt.Printf("%d ", i+1)
-		for j := 0; j < b.Size; j++ {
-			fmt.Printf("%s ", b.Grid[j][i])
+	for y := 0; y < b.Size; y++ {
+		fmt.Printf("%d ", y+1)
+		for x := 0; x < b.Size; x++ {
+			fmt.Printf("%s ", b.Grid[x][y])
 		}
 		fmt.Println()
 	}
