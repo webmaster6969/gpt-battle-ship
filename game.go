@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -10,6 +11,9 @@ func Play(player1Name, player2Name string, boardSize int, shipCounts []int) {
 	// Инициализация игроков и досок
 	player1 := Player{Name: player1Name, Board: NewBoard(boardSize, shipCounts)}
 	player2 := Player{Name: player2Name, Board: NewBoard(boardSize, shipCounts)}
+
+	var data, _ = json.Marshal(player1)
+	fmt.Println(string(data))
 
 	currentPlayer := &player1
 	otherPlayer := &player2

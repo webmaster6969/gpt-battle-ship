@@ -6,15 +6,15 @@ import (
 	"time"
 )
 
-const BOARD_CELL_TYPE_EMPTY = 0
-const BOARD_CELL_TYPE_MISS = 1
-const BOARD_CELL_TYPE_HIT = 2
-const BOARD_CELL_TYPE_DEATH = 3
+const BoardCellTypeEmpty = 0
+const BoardCellTypeMiss = 1
+const BoardCellTypeHit = 2
+const BoardCellTypeDeath = 3
 
 type Board struct {
-	Size  int
-	Ships []*Ship
-	Grid  [][]int
+	Size  int     `json:"Size"`
+	Ships []*Ship `json:"ships"`
+	Grid  [][]int `json:"grid"`
 }
 
 // NewBoard Создаем доску
@@ -31,7 +31,7 @@ func NewBoard(size int, shipCounts []int) *Board {
 	for y := 0; y < size; y++ {
 		for x := 0; x < size; x++ {
 			b.Grid[x] = make([]int, size)
-			b.Grid[x][y] = BOARD_CELL_TYPE_EMPTY
+			b.Grid[x][y] = BoardCellTypeEmpty
 		}
 	}
 
@@ -178,7 +178,7 @@ func (b *Board) FindShip(x, y int) *Ship {
 
 // Shoot Выстрел по доске
 func (b *Board) Shoot(x, y int) bool {
-	if b.Grid[x][y] == BOARD_CELL_TYPE_HIT || b.Grid[x][y] == BOARD_CELL_TYPE_MISS {
+	if b.Grid[x][y] == BoardCellTypeHit || b.Grid[x][y] == BoardCellTypeMiss {
 		return false
 	}
 
@@ -186,21 +186,21 @@ func (b *Board) Shoot(x, y int) bool {
 
 	if ship != nil {
 		ship.Hits++
-		b.Grid[x][y] = BOARD_CELL_TYPE_HIT
+		b.Grid[x][y] = BoardCellTypeHit
 		if ship.Hits == ship.Size {
 			b.sinkShip(ship)
 		}
 		return true
 	}
 
-	b.Grid[x][y] = BOARD_CELL_TYPE_MISS
+	b.Grid[x][y] = BoardCellTypeMiss
 	return false
 }
 
 // Стив что корабль убит
 func (b *Board) sinkShip(ship *Ship) {
 	for _, loc := range ship.Location {
-		b.Grid[loc.X][loc.Y] = BOARD_CELL_TYPE_DEATH
+		b.Grid[loc.X][loc.Y] = BoardCellTypeDeath
 	}
 }
 
@@ -226,20 +226,20 @@ func (b *Board) Print() {
 		fmt.Printf("%d ", y+1)
 		for x := 0; x < b.Size; x++ {
 			switch b.Grid[x][y] {
-			case BOARD_CELL_TYPE_EMPTY:
+			case BoardCellTypeEmpty:
 				if b.FindShip(x, y) != nil {
 					fmt.Printf("* ")
 				} else {
 					fmt.Printf(". ")
 				}
 				break
-			case BOARD_CELL_TYPE_MISS:
+			case BoardCellTypeMiss:
 				fmt.Printf("O ")
 				break
-			case BOARD_CELL_TYPE_HIT:
+			case BoardCellTypeHit:
 				fmt.Printf("X ")
 				break
-			case BOARD_CELL_TYPE_DEATH:
+			case BoardCellTypeDeath:
 				fmt.Printf("# ")
 				break
 			}
