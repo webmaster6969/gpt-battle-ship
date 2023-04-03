@@ -13,8 +13,8 @@ const BoardCellTypeDeath = 3
 
 type Board struct {
 	Size  int     `json:"Size"`
-	Ships []*Ship `json:"ships"`
-	Grid  [][]int `json:"grid"`
+	Ships []*Ship `json:"Ships"`
+	Grid  Grid    `json:"Grid"`
 }
 
 // NewBoard Создаем доску
@@ -24,14 +24,12 @@ func NewBoard(size int, shipCounts []int) *Board {
 	// Создаем доску
 	b := &Board{
 		Size: size,
-		Grid: make([][]int, size),
 	}
 
 	// Ставим каждой клетки изначальное значение
 	for y := 0; y < size; y++ {
 		for x := 0; x < size; x++ {
-			b.Grid[x] = make([]int, size)
-			b.Grid[x][y] = BoardCellTypeEmpty
+			b.Grid.AddCell(Location{x, y}, BoardCellTypeEmpty)
 		}
 	}
 
@@ -178,7 +176,12 @@ func (b *Board) FindShip(x, y int) *Ship {
 
 // Shoot Выстрел по доске
 func (b *Board) Shoot(x, y int) bool {
-	if b.Grid[x][y] == BoardCellTypeHit || b.Grid[x][y] == BoardCellTypeMiss {
+	_cell := b.Grid.FindCell(Location{x, y})
+	if _cell == nil {
+		return false
+	}
+
+	if _cell.Status == BoardCellTypeHit || _cell.Status == BoardCellTypeMiss {
 		return false
 	}
 
@@ -186,21 +189,22 @@ func (b *Board) Shoot(x, y int) bool {
 
 	if ship != nil {
 		ship.Hits++
-		b.Grid[x][y] = BoardCellTypeHit
+		_cell.Status = BoardCellTypeHit
 		if ship.Hits == ship.Size {
 			b.sinkShip(ship)
 		}
 		return true
 	}
 
-	b.Grid[x][y] = BoardCellTypeMiss
+	_cell.Status = BoardCellTypeMiss
 	return false
 }
 
 // Стив что корабль убит
 func (b *Board) sinkShip(ship *Ship) {
 	for _, loc := range ship.Location {
-		b.Grid[loc.X][loc.Y] = BoardCellTypeDeath
+		_cell := b.Grid.FindCell(Location{loc.X, loc.Y})
+		_cell.Status = BoardCellTypeDeath
 	}
 }
 
@@ -225,7 +229,8 @@ func (b *Board) Print() {
 	for y := 0; y < b.Size; y++ {
 		fmt.Printf("%d ", y+1)
 		for x := 0; x < b.Size; x++ {
-			switch b.Grid[x][y] {
+			_cell := b.Grid.FindCell(Location{x, y})
+			switch _cell.Status {
 			case BoardCellTypeEmpty:
 				if b.FindShip(x, y) != nil {
 					fmt.Printf("* ")

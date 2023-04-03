@@ -2,24 +2,24 @@ package main
 
 // Location Позиции кораблей
 type Location struct {
-	X int `json:"x"`
-	Y int `json:"y"`
+	X int `json:"X"`
+	Y int `json:"Y"`
 }
 
 type Player struct {
 	// Имя игрока
-	Name string `json:"name"`
+	Name string `json:"Name"`
 	// Доска игрока
-	Board  *Board `json:"board"`
-	Hits   int    `json:"hits"`
-	Misses int    `json:"misses"`
+	Board  *Board `json:"Board"`
+	Hits   int    `json:"Hits"`
+	Misses int    `json:"Misses"`
 }
 
 type Ship struct {
 	// Длина корабля
-	Size int `json:"size"`
+	Size int `json:"Size"`
 	// Расположение
-	Location []Location `json:"location"`
+	Location []Location `json:"Location"`
 	// Жизни корабля
-	Hits int `json:"hits"`
+	Hits int `json:"Hits"`
 }
